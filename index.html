@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Plants" />
+<meta name="theme-color" content="#1D9E75" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.png" />
+<title>Plant Reminder</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f4f7f4; color: #1a1a1a; min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+  #app-screen { display: none; max-width: 520px; margin: 0 auto; padding: 2rem 1rem; }
+
+  .login-card {
+    background: #fff; border: 1px solid #e2e8e2; border-radius: 20px;
+    padding: 2rem 1.75rem; width: 100%; max-width: 360px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  }
+  .login-card .plant-emoji { font-size: 48px; text-align: center; margin-bottom: 0.5rem; }
+  .login-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 0.25rem; text-align: center; color: #1a1a1a; }
+  .login-card p { font-size: 13px; color: #888; text-align: center; margin-bottom: 1.5rem; }
+
+  label { font-size: 13px; color: #555; font-weight: 500; display: block; margin-bottom: 5px; margin-top: 14px; }
+  input[type="text"], input[type="password"], input[type="number"] {
+    width: 100%; padding: 11px 14px; border: 1.5px solid #e0e8e0; border-radius: 10px;
+    font-size: 15px; background: #f9fbf9; color: #1a1a1a; transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus { outline: none; border-color: #1D9E75; background: #fff; }
+
+  .btn {
+    width: 100%; margin-top: 1.25rem; padding: 13px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, transform 0.1s; border: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #1D9E75; color: #fff; }
+  .btn-primary:hover { background: #179068; }
+  .btn-outline { background: transparent; color: #333; border: 1.5px solid #ddd; font-weight: 500; }
+  .btn-outline:hover { background: #f0f0f0; }
+
+  .err { color: #c0392b; font-size: 13px; text-align: center; margin-top: 8px; min-height: 18px; }
+
+  #app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  #app-header h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+  #logout-btn { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+  #logout-btn:hover { background: #eee; color: #333; }
+
+  .banner {
+    border-radius: 12px; padding: 12px 16px; font-size: 13px; margin-bottom: 1.25rem;
+    display: none; align-items: center; gap: 10px; line-height: 1.5;
+  }
+  .banner-green { background: #e6f7f0; border: 1px solid #9ed9bf; color: #0F6E56; }
+  .banner-yellow { background: #fef9e7; border: 1px solid #f5d87a; color: #7a5c00; }
+
+  .add-form {
+    background: #fff; border: 1px solid #e2e8e2; border-radius: 16px;
+    padding: 1.25rem 1.25rem 1rem; margin-bottom: 1.5rem;
+  }
+  .add-form h3 { font-size: 15px; font-weight: 700; margin-bottom: 0.75rem; color: #1a1a1a; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+
+  .plant-list { display: flex; flex-direction: column; gap: 10px; }
+  .plant-card {
+    background: #fff; border: 1px solid #e2e8e2; border-radius: 16px;
+    padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px;
+  }
+  .plant-icon {
+    width: 46px; height: 46px; border-radius: 50%; background: #e6f7f0;
+    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+  }
+  .plant-info { flex: 1; min-width: 0; }
+  .plant-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .plant-meta { font-size: 12px; color: #999; margin-top: 2px; }
+  .water-btn {
+    background: none; border: 1.5px solid #1D9E75; border-radius: 8px; cursor: pointer;
+    color: #1D9E75; font-size: 12px; padding: 5px 12px; margin-top: 7px; font-weight: 600;
+    transition: background 0.12s;
+  }
+  .water-btn:active { background: #e6f7f0; }
+
+  .plant-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+  .status-ok { background: #e6f7f0; color: #0F6E56; }
+  .status-due { background: #fdecea; color: #c0392b; }
+  .status-soon { background: #fef3e2; color: #9a6000; }
+
+  .delete-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 4px; margin-left: 2px; }
+  .delete-btn:active { color: #c0392b; }
+
+  .empty { text-align: center; color: #bbb; font-size: 14px; padding: 2.5rem 1rem; }
+  .empty-icon { font-size: 40px; margin-bottom: 0.5rem; }
+
+  .ios-hint {
+    background: #fff; border: 1px solid #e2e8e2; border-radius: 12px;
+    padding: 12px 16px; font-size: 13px; color: #555; margin-bottom: 1.25rem;
+    display: none; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="plant-emoji">🌿</div>
+    <h2>Plant Reminder</h2>
+    <p>Never forget to water your plants</p>
+    <label>Username</label>
+    <input type="text" id="username" placeholder="Username" autocomplete="username" />
+    <label>Passcode</label>
+    <input type="password" id="passcode" placeholder="Passcode" autocomplete="current-password" />
+    <button class="btn btn-primary" onclick="doLogin()">Sign in</button>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<div id="app-screen">
+  <div id="app-header">
+    <h1>🌱 My Plants</h1>
+    <button id="logout-btn" onclick="doLogout()">Sign out</button>
+  </div>
+
+  <div class="banner banner-green" id="notif-bar">
+    <span>✓</span>
+    <span>Notifications enabled — you'll get alerts when plants need watering.</span>
+  </div>
+
+  <div class="banner banner-yellow" id="notif-denied">
+    <span>⚠</span>
+    <span>Notifications blocked. Enable them in Settings → Safari → [this site] → Notifications.</span>
+  </div>
+
+  <div class="ios-hint" id="ios-hint">
+    📲 <strong>Tip:</strong> Tap the Share button in Safari, then "Add to Home Screen" to get notifications on your iPhone.
+  </div>
+
+  <div class="add-form">
+    <h3>Add a plant</h3>
+    <div class="row">
+      <div>
+        <label>Plant name</label>
+        <input type="text" id="plant-name" placeholder="e.g. Cactus" />
+      </div>
+      <div>
+        <label>Every (days)</label>
+        <input type="number" id="plant-days" placeholder="e.g. 7" min="1" inputmode="numeric" />
+      </div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:12px;" onclick="addPlant()">+ Add plant</button>
+    <div class="err" id="add-err"></div>
+  </div>
+
+  <div class="section-title" id="list-title" style="display:none;">Your plants</div>
+  <div class="plant-list" id="plant-list"></div>
+</div>
+
+<script>
+  const CREDS = { user: 'AmitP', pass: 'AmitPLANTS' };
+  let plants = JSON.parse(localStorage.getItem('amit_plants') || '[]');
+  let swReg = null;
+
+  function save() { localStorage.setItem('amit_plants', JSON.stringify(plants)); }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(r => { swReg = r; });
+  }
+
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+  }
+
+  function isStandalone() {
+    return window.navigator.standalone === true;
+  }
+
+  function doLogin() {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('passcode').value;
+    if (u === CREDS.user && p === CREDS.pass) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      setupNotifications();
+      renderPlants();
+      scheduleChecks();
+    } else {
+      document.getElementById('login-err').textContent = 'Wrong username or passcode.';
+    }
+  }
+
+  function doLogout() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('passcode').value = '';
+  }
+
+  function setupNotifications() {
+    if (isIOS() && !isStandalone()) {
+      document.getElementById('ios-hint').style.display = 'block';
+      return;
+    }
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      document.getElementById('notif-bar').style.display = 'flex';
+    } else if (Notification.permission === 'denied') {
+      document.getElementById('notif-denied').style.display = 'flex';
+    } else {
+      Notification.requestPermission().then(p => {
+        if (p === 'granted') document.getElementById('notif-bar').style.display = 'flex';
+        else if (p === 'denied') document.getElementById('notif-denied').style.display = 'flex';
+      });
+    }
+  }
+
+  function sendNotif(title, body) {
+    if (Notification.permission !== 'granted') return;
+    if (swReg) {
+      swReg.showNotification(title, { body, icon: '/icon.png' });
+    } else {
+      new Notification(title, { body });
+    }
+  }
+
+  function addPlant() {
+    const name = document.getElementById('plant-name').value.trim();
+    const days = parseInt(document.getElementById('plant-days').value);
+    if (!name) { document.getElementById('add-err').textContent = 'Enter a plant name.'; return; }
+    if (!days || days < 1) { document.getElementById('add-err').textContent = 'Enter a valid number of days.'; return; }
+    document.getElementById('add-err').textContent = '';
+    plants.push({ id: Date.now(), name, days, lastWatered: Date.now() });
+    save();
+    document.getElementById('plant-name').value = '';
+    document.getElementById('plant-days').value = '';
+    renderPlants();
+  }
+
+  function deletePlant(id) {
+    plants = plants.filter(p => p.id !== id);
+    save(); renderPlants();
+  }
+
+  function waterPlant(id) {
+    plants = plants.map(p => p.id === id ? { ...p, lastWatered: Date.now() } : p);
+    save(); renderPlants();
+  }
+
+  function daysUntil(plant) {
+    return plant.days - (Date.now() - plant.lastWatered) / 86400000;
+  }
+
+  function statusOf(plant) {
+    const d = daysUntil(plant);
+    if (d <= 0) return 'due';
+    if (d <= 1) return 'soon';
+    return 'ok';
+  }
+
+  function renderPlants() {
+    const list = document.getElementById('plant-list');
+    const title = document.getElementById('list-title');
+    if (plants.length === 0) {
+      title.style.display = 'none';
+      list.innerHTML = '<div class="empty"><div class="empty-icon">🪴</div>No plants yet.<br>Add one above to get started.</div>';
+      return;
+    }
+    title.style.display = 'block';
+    list.innerHTML = plants.map(p => {
+      const st = statusOf(p);
+      const d = daysUntil(p);
+      const label = st === 'due' ? 'Water now!' : st === 'soon' ? 'Due soon' : `In ${Math.ceil(d)} day${Math.ceil(d) === 1 ? '' : 's'}`;
+      return `<div class="plant-card">
+        <div class="plant-icon">🌱</div>
+        <div class="plant-info">
+          <div class="plant-name">${p.name}</div>
+          <div class="plant-meta">Every ${p.days} day${p.days === 1 ? '' : 's'}</div>
+          <button class="water-btn" onclick="waterPlant(${p.id})">Mark as watered</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <span class="plant-status status-${st}">${label}</span>
+          <button class="delete-btn" onclick="deletePlant(${p.id})" title="Remove">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function scheduleChecks() {
+    checkAndNotify();
+    setInterval(checkAndNotify, 60 * 60 * 1000);
+  }
+
+  function checkAndNotify() {
+    if (Notification.permission !== 'granted') return;
+    plants.forEach(p => {
+      if (daysUntil(p) <= 0) {
+        sendNotif('Time to water your plant! 🌱', `${p.name} needs watering today.`);
+      }
+    });
+  }
+</script>
+</body>
+</html>
