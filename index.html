@@ -1,312 +1,698 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl" class="scroll-smooth">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="Plants" />
-<meta name="theme-color" content="#1D9E75" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon.png" />
-<title>Plant Reminder</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f4f7f4; color: #1a1a1a; min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>עמית סגל | שיעורים פרטיים - Amit Segal Tutoring</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
-  #app-screen { display: none; max-width: 520px; margin: 0 auto; padding: 2rem 1rem; }
+  <!-- Google Fonts: Rubik (Hebrew) & Inter (English) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  .login-card {
-    background: #fff; border: 1px solid #e2e8e2; border-radius: 20px;
-    padding: 2rem 1.75rem; width: 100%; max-width: 360px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-  }
-  .login-card .plant-emoji { font-size: 48px; text-align: center; margin-bottom: 0.5rem; }
-  .login-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 0.25rem; text-align: center; color: #1a1a1a; }
-  .login-card p { font-size: 13px; color: #888; text-align: center; margin-bottom: 1.5rem; }
-
-  label { font-size: 13px; color: #555; font-weight: 500; display: block; margin-bottom: 5px; margin-top: 14px; }
-  input[type="text"], input[type="password"], input[type="number"] {
-    width: 100%; padding: 11px 14px; border: 1.5px solid #e0e8e0; border-radius: 10px;
-    font-size: 15px; background: #f9fbf9; color: #1a1a1a; transition: border-color 0.15s, background 0.15s;
-    -webkit-appearance: none;
-  }
-  input:focus { outline: none; border-color: #1D9E75; background: #fff; }
-
-  .btn {
-    width: 100%; margin-top: 1.25rem; padding: 13px; border-radius: 12px;
-    font-size: 15px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s, transform 0.1s; border: none;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: #1D9E75; color: #fff; }
-  .btn-primary:hover { background: #179068; }
-  .btn-outline { background: transparent; color: #333; border: 1.5px solid #ddd; font-weight: 500; }
-  .btn-outline:hover { background: #f0f0f0; }
-
-  .err { color: #c0392b; font-size: 13px; text-align: center; margin-top: 8px; min-height: 18px; }
-
-  #app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-  #app-header h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; }
-  #logout-btn { font-size: 13px; color: #888; background: none; border: none; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
-  #logout-btn:hover { background: #eee; color: #333; }
-
-  .banner {
-    border-radius: 12px; padding: 12px 16px; font-size: 13px; margin-bottom: 1.25rem;
-    display: none; align-items: center; gap: 10px; line-height: 1.5;
-  }
-  .banner-green { background: #e6f7f0; border: 1px solid #9ed9bf; color: #0F6E56; }
-  .banner-yellow { background: #fef9e7; border: 1px solid #f5d87a; color: #7a5c00; }
-
-  .add-form {
-    background: #fff; border: 1px solid #e2e8e2; border-radius: 16px;
-    padding: 1.25rem 1.25rem 1rem; margin-bottom: 1.5rem;
-  }
-  .add-form h3 { font-size: 15px; font-weight: 700; margin-bottom: 0.75rem; color: #1a1a1a; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  .section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-
-  .plant-list { display: flex; flex-direction: column; gap: 10px; }
-  .plant-card {
-    background: #fff; border: 1px solid #e2e8e2; border-radius: 16px;
-    padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px;
-  }
-  .plant-icon {
-    width: 46px; height: 46px; border-radius: 50%; background: #e6f7f0;
-    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
-  }
-  .plant-info { flex: 1; min-width: 0; }
-  .plant-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
-  .plant-meta { font-size: 12px; color: #999; margin-top: 2px; }
-  .water-btn {
-    background: none; border: 1.5px solid #1D9E75; border-radius: 8px; cursor: pointer;
-    color: #1D9E75; font-size: 12px; padding: 5px 12px; margin-top: 7px; font-weight: 600;
-    transition: background 0.12s;
-  }
-  .water-btn:active { background: #e6f7f0; }
-
-  .plant-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
-  .status-ok { background: #e6f7f0; color: #0F6E56; }
-  .status-due { background: #fdecea; color: #c0392b; }
-  .status-soon { background: #fef3e2; color: #9a6000; }
-
-  .delete-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 4px; margin-left: 2px; }
-  .delete-btn:active { color: #c0392b; }
-
-  .empty { text-align: center; color: #bbb; font-size: 14px; padding: 2.5rem 1rem; }
-  .empty-icon { font-size: 40px; margin-bottom: 0.5rem; }
-
-  .ios-hint {
-    background: #fff; border: 1px solid #e2e8e2; border-radius: 12px;
-    padding: 12px 16px; font-size: 13px; color: #555; margin-bottom: 1.25rem;
-    display: none; line-height: 1.6;
-  }
-</style>
-</head>
-<body>
-
-<div id="login-screen">
-  <div class="login-card">
-    <div class="plant-emoji">🌿</div>
-    <h2>Plant Reminder</h2>
-    <p>Never forget to water your plants</p>
-    <label>Username</label>
-    <input type="text" id="username" placeholder="Username" autocomplete="username" />
-    <label>Passcode</label>
-    <input type="password" id="passcode" placeholder="Passcode" autocomplete="current-password" />
-    <button class="btn btn-primary" onclick="doLogin()">Sign in</button>
-    <div class="err" id="login-err"></div>
-  </div>
-</div>
-
-<div id="app-screen">
-  <div id="app-header">
-    <h1>🌱 My Plants</h1>
-    <button id="logout-btn" onclick="doLogout()">Sign out</button>
-  </div>
-
-  <div class="banner banner-green" id="notif-bar">
-    <span>✓</span>
-    <span>Notifications enabled — you'll get alerts when plants need watering.</span>
-  </div>
-
-  <div class="banner banner-yellow" id="notif-denied">
-    <span>⚠</span>
-    <span>Notifications blocked. Enable them in Settings → Safari → [this site] → Notifications.</span>
-  </div>
-
-  <div class="ios-hint" id="ios-hint">
-    📲 <strong>Tip:</strong> Tap the Share button in Safari, then "Add to Home Screen" to get notifications on your iPhone.
-  </div>
-
-  <div class="add-form">
-    <h3>Add a plant</h3>
-    <div class="row">
-      <div>
-        <label>Plant name</label>
-        <input type="text" id="plant-name" placeholder="e.g. Cactus" />
-      </div>
-      <div>
-        <label>Every (days)</label>
-        <input type="number" id="plant-days" placeholder="e.g. 7" min="1" inputmode="numeric" />
-      </div>
-    </div>
-    <button class="btn btn-outline" style="margin-top:12px;" onclick="addPlant()">+ Add plant</button>
-    <div class="err" id="add-err"></div>
-  </div>
-
-  <div class="section-title" id="list-title" style="display:none;">Your plants</div>
-  <div class="plant-list" id="plant-list"></div>
-</div>
-
-<script>
-  const CREDS = { user: 'AmitP', pass: 'AmitPLANTS' };
-  let plants = JSON.parse(localStorage.getItem('amit_plants') || '[]');
-  let swReg = null;
-
-  function save() { localStorage.setItem('amit_plants', JSON.stringify(plants)); }
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(r => { swReg = r; });
-  }
-
-  function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent);
-  }
-
-  function isStandalone() {
-    return window.navigator.standalone === true;
-  }
-
-  function doLogin() {
-    const u = document.getElementById('username').value.trim();
-    const p = document.getElementById('passcode').value;
-    if (u === CREDS.user && p === CREDS.pass) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app-screen').style.display = 'block';
-      setupNotifications();
-      renderPlants();
-      scheduleChecks();
-    } else {
-      document.getElementById('login-err').textContent = 'Wrong username or passcode.';
-    }
-  }
-
-  function doLogout() {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('app-screen').style.display = 'none';
-    document.getElementById('username').value = '';
-    document.getElementById('passcode').value = '';
-  }
-
-  function setupNotifications() {
-    if (isIOS() && !isStandalone()) {
-      document.getElementById('ios-hint').style.display = 'block';
-      return;
-    }
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'granted') {
-      document.getElementById('notif-bar').style.display = 'flex';
-    } else if (Notification.permission === 'denied') {
-      document.getElementById('notif-denied').style.display = 'flex';
-    } else {
-      Notification.requestPermission().then(p => {
-        if (p === 'granted') document.getElementById('notif-bar').style.display = 'flex';
-        else if (p === 'denied') document.getElementById('notif-denied').style.display = 'flex';
-      });
-    }
-  }
-
-  function sendNotif(title, body) {
-    if (Notification.permission !== 'granted') return;
-    if (swReg) {
-      swReg.showNotification(title, { body, icon: '/icon.png' });
-    } else {
-      new Notification(title, { body });
-    }
-  }
-
-  function addPlant() {
-    const name = document.getElementById('plant-name').value.trim();
-    const days = parseInt(document.getElementById('plant-days').value);
-    if (!name) { document.getElementById('add-err').textContent = 'Enter a plant name.'; return; }
-    if (!days || days < 1) { document.getElementById('add-err').textContent = 'Enter a valid number of days.'; return; }
-    document.getElementById('add-err').textContent = '';
-    plants.push({ id: Date.now(), name, days, lastWatered: Date.now() });
-    save();
-    document.getElementById('plant-name').value = '';
-    document.getElementById('plant-days').value = '';
-    renderPlants();
-  }
-
-  function deletePlant(id) {
-    plants = plants.filter(p => p.id !== id);
-    save(); renderPlants();
-  }
-
-  function waterPlant(id) {
-    plants = plants.map(p => p.id === id ? { ...p, lastWatered: Date.now() } : p);
-    save(); renderPlants();
-  }
-
-  function daysUntil(plant) {
-    return plant.days - (Date.now() - plant.lastWatered) / 86400000;
-  }
-
-  function statusOf(plant) {
-    const d = daysUntil(plant);
-    if (d <= 0) return 'due';
-    if (d <= 1) return 'soon';
-    return 'ok';
-  }
-
-  function renderPlants() {
-    const list = document.getElementById('plant-list');
-    const title = document.getElementById('list-title');
-    if (plants.length === 0) {
-      title.style.display = 'none';
-      list.innerHTML = '<div class="empty"><div class="empty-icon">🪴</div>No plants yet.<br>Add one above to get started.</div>';
-      return;
-    }
-    title.style.display = 'block';
-    list.innerHTML = plants.map(p => {
-      const st = statusOf(p);
-      const d = daysUntil(p);
-      const label = st === 'due' ? 'Water now!' : st === 'soon' ? 'Due soon' : `In ${Math.ceil(d)} day${Math.ceil(d) === 1 ? '' : 's'}`;
-      return `<div class="plant-card">
-        <div class="plant-icon">🌱</div>
-        <div class="plant-info">
-          <div class="plant-name">${p.name}</div>
-          <div class="plant-meta">Every ${p.days} day${p.days === 1 ? '' : 's'}</div>
-          <button class="water-btn" onclick="waterPlant(${p.id})">Mark as watered</button>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-          <span class="plant-status status-${st}">${label}</span>
-          <button class="delete-btn" onclick="deletePlant(${p.id})" title="Remove">✕</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  function scheduleChecks() {
-    checkAndNotify();
-    setInterval(checkAndNotify, 60 * 60 * 1000);
-  }
-
-  function checkAndNotify() {
-    if (Notification.permission !== 'granted') return;
-    plants.forEach(p => {
-      if (daysUntil(p) <= 0) {
-        sendNotif('Time to water your plant! 🌱', `${p.name} needs watering today.`);
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            he: ['Rubik', 'sans-serif'],
+            en: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
       }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Rubik', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .ltr-mode {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Announcement / Language Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2 space-x-reverse rtl:space-x-reverse">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="availabilityBadge" class="text-xs sm:text-sm font-medium text-slate-600">
+          מקבל תלמידים חדשים במודיעין והסביבה
+        </span>
+      </div>
+
+      <!-- Language Toggle Button -->
+      <button 
+        onclick="toggleLanguage()" 
+        class="inline-flex items-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border border-brand-200 transition-all duration-200 active:scale-95 shadow-sm"
+      >
+        <i class="fa-solid fa-globe"></i>
+        <span id="langBtnText">English</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-8 sm:space-y-12">
+
+    <!-- Hero Card -->
+    <section class="bg-gradient-to-br from-white via-slate-50 to-brand-50/50 rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xl shadow-slate-200/50 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-right rtl:md:text-right ltr:md:text-left">
+        
+        <!-- Avatar / Badge -->
+        <div class="relative flex-shrink-0">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white flex items-center justify-center text-3xl sm:text-4xl font-extrabold shadow-lg shadow-brand-500/30">
+            עס
+          </div>
+          <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-full shadow-md text-xs flex items-center justify-center w-7 h-7" title="זמין לשיעורים">
+            <i class="fa-solid fa-check"></i>
+          </div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="flex-1 space-y-3">
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+            <span class="bg-brand-100 text-brand-800 text-xs px-3 py-1 rounded-full font-semibold">
+              <i class="fa-solid fa-graduation-cap ml-1 ltr:ml-0 ltr:mr-1"></i>
+              <span id="heroBadge1">כיתה ט׳ | כיתת עמ״ט</span>
+            </span>
+            <span class="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-semibold">
+              <i class="fa-solid fa-location-dot ml-1 ltr:ml-0 ltr:mr-1"></i>
+              <span id="heroBadge2">מודיעין</span>
+            </span>
+          </div>
+
+          <h1 id="heroTitle" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            עמית סגל – שיעורים פרטיים
+          </h1>
+
+          <p id="heroSubtitle" class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl font-normal">
+            חיזוק, סיוע בשיעורי בית והקניית הרגלי למידה במתמטיקה, אנגלית, עברית ומדעים לתלמידי כיתות א׳-ו׳. יחס אישי, סבלני ומעצים!
+          </p>
+
+          <!-- Contact Options -->
+          <div class="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-4">
+            <a 
+              href="https://wa.me/972543440083" 
+              target="_blank" 
+              class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-200 active:scale-95 text-sm sm:text-base"
+            >
+              <i class="fa-brands fa-whatsapp text-lg"></i>
+              <span id="heroWaBtn">הודעת WhatsApp מהירה</span>
+            </a>
+            
+            <div class="inline-flex items-center gap-2 text-slate-700 font-bold text-sm sm:text-base py-3">
+              <i class="fa-solid fa-phone text-slate-500"></i>
+              <span id="heroCallBtn">טלפון: 054-344-0083</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Advantages Grid -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 rounded-xl bg-blue-100 text-brand-600 flex items-center justify-center text-lg font-bold mb-3">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3 id="adv1Title" class="font-bold text-slate-900 text-base mb-1">כיתת עמ״ט (STEM)</h3>
+        <p id="adv1Desc" class="text-xs text-slate-600 leading-relaxed">לומד בתוכנית מועשרת במתמטיקה, מדעים ומדעי המחשב. חשיבה אנליטית ושיטות לימוד ברורות.</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold mb-3">
+          <i class="fa-solid fa-language"></i>
+        </div>
+        <h3 id="adv2Title" class="font-bold text-slate-900 text-base mb-1">אנגלית ברמה גבוהה</h3>
+        <p id="adv2Desc" class="text-xs text-slate-600 leading-relaxed">3 שנים של מגורים בקליפורניה. שליטה מעולה ואנגלית שוטפת בדיבור, קריאה וכתיבה.</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold mb-3">
+          <i class="fa-solid fa-heart"></i>
+        </div>
+        <h3 id="adv3Title" class="font-bold text-slate-900 text-base mb-1">גישה מעולה לילדים</h3>
+        <p id="adv3Desc" class="text-xs text-slate-600 leading-relaxed">ניסיון מעשי בהדרכה, חניכה והשגחה על ילדים בגילאי היסוד. גישה סבלנית, קשובה ואווירת למידה חיובית.</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold mb-3">
+          <i class="fa-solid fa-user-check"></i>
+        </div>
+        <h3 id="adv4Title" class="font-bold text-slate-900 text-base mb-1">בוגר ואחראי</h3>
+        <p id="adv4Desc" class="text-xs text-slate-600 leading-relaxed">זמין, מנומס ומחויב להתקדמות של התלמיד/ה לכל אורך הדרך.</p>
+      </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+        <div>
+          <h2 id="subjTitle" class="text-xl sm:text-2xl font-bold text-slate-900">📚 מקצועות הלימוד (כיתות א׳-ו׳)</h2>
+          <p id="subjSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1">תוכנית מותאמת לפי הקצב והצרכים של התלמיד/ה</p>
+        </div>
+        <span class="inline-flex items-center gap-1 text-xs font-medium text-brand-700 bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-100 w-max">
+          <i class="fa-solid fa-house"></i>
+          <span id="locationNote">שיעורים בבית התלמיד/ה במודיעין</span>
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Math Card -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 hover:border-brand-300 transition-colors">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <h3 id="sMathTitle" class="font-bold text-slate-900 text-lg">מתמטיקה</h3>
+          </div>
+          <p id="sMathDesc" class="text-xs text-slate-600 leading-relaxed">
+            חיזוק יסודות החשבון, שברים, אחוזים, בעיות מילוליות והכנה למבחנים בשיטה פשוטה ומובנת.
+          </p>
+        </div>
+
+        <!-- English Card -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 hover:border-brand-300 transition-colors">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm">
+              <i class="fa-solid fa-spell-check"></i>
+            </div>
+            <h3 id="sEngTitle" class="font-bold text-slate-900 text-lg">אנגלית</h3>
+          </div>
+          <p id="sEngDesc" class="text-xs text-slate-600 leading-relaxed">
+            שיפור הדיבור והביטחון העצמי, אוצר מילים, דקדוק, קריאה וכתיבה ברמה גבוהה ושוטפת.
+          </p>
+        </div>
+
+        <!-- Hebrew Card -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 hover:border-brand-300 transition-colors">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3 id="sHebTitle" class="font-bold text-slate-900 text-lg">עברית / הבנת הנקרא</h3>
+          </div>
+          <p id="sHebDesc" class="text-xs text-slate-600 leading-relaxed">
+            הבנת הנקרא, ניתוח טקסטים, כתיבה תמציתית, עבודה על שגיאות כתיב והעשרת השפה.
+          </p>
+        </div>
+
+        <!-- Science Card -->
+        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 hover:border-brand-300 transition-colors">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center text-sm">
+              <i class="fa-solid fa-flask"></i>
+            </div>
+            <h3 id="sSciTitle" class="font-bold text-slate-900 text-lg">מדעים וטכנולוגיה</h3>
+          </div>
+          <p id="sSciDesc" class="text-xs text-slate-600 leading-relaxed">
+            הסבר מושגים מדעיים בצורה חווייתית ומעניינת, עזרה בעבודות חקר והכנה למבחנים.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing & Bundle Calculator -->
+    <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+      <div class="text-center space-y-2">
+        <span class="text-brand-400 text-xs font-bold tracking-wider uppercase" id="pricingTag">מחיר הוגן ושקוף</span>
+        <h2 id="pricingTitle" class="text-2xl sm:text-3xl font-extrabold">מחירון שיעורים</h2>
+        <p id="pricingSubtitle" class="text-slate-300 text-xs sm:text-sm">איכות גבוהה במחיר נוח לכל משפחה במודיעין</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch pt-2">
+        <!-- Single Lesson Box -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 flex flex-col justify-between text-center relative overflow-hidden">
+          <div>
+            <span id="rateLabel1" class="text-xs font-medium text-slate-400 uppercase tracking-wider">שיעור בודד (45 דקות)</span>
+            <div class="text-4xl sm:text-5xl font-extrabold text-white my-3">
+              ₪65
+            </div>
+            <p id="rateSub1" class="text-xs text-slate-300">טווח לשיעור: ₪60 - ₪70 (בהתאם למיקום/משך)</p>
+          </div>
+          <ul class="text-xs text-slate-300 space-y-2 my-6 text-right rtl:text-right ltr:text-left border-t border-b border-slate-700/60 py-4">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-emerald-400"></i>
+              <span id="pCheck1">שיעור פרטי 1-על-1 בבית התלמיד/ה</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-emerald-400"></i>
+              <span id="pCheck2">סיכום קצר להורים בסיום כל שיעור</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-emerald-400"></i>
+              <span id="pCheck3">מענה לשאלות קצרות ב-WhatsApp במידת הצורך</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Interactive Lesson Package Estimator -->
+        <div class="bg-brand-900/40 border border-brand-500/30 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span id="calcTitle" class="text-xs font-bold text-brand-300 uppercase tracking-wider">מחשבון מסלול מומלץ</span>
+              <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full" id="discountBadge">חיסכון מתוכנן</span>
+            </div>
+            
+            <label id="sliderLabel" class="block text-xs font-medium text-slate-300 mb-2">בחר/י מספר שיעורים שבועיים:</label>
+            <input 
+              type="range" 
+              id="lessonSlider" 
+              min="1" 
+              max="4" 
+              value="2" 
+              oninput="updateCalculator()" 
+              class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+            >
+            
+            <div class="flex justify-between text-xs text-slate-400 mt-1 font-semibold">
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/80 p-4 rounded-xl text-center border border-slate-700/50">
+            <div id="calcLessonsCount" class="text-xs font-semibold text-slate-300">2 שיעורים בשבוע (כ-8 בחודש)</div>
+            <div id="calcTotalPrice" class="text-3xl font-extrabold text-brand-400 my-1">₪480 / חודש</div>
+            <div id="calcSavingsNote" class="text-[11px] text-emerald-400">ערך מעולה להתקדמות עקבית ומהירה!</div>
+          </div>
+
+          <button 
+            type="button"
+            onclick="scrollToContact()" 
+            class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+          >
+            <span id="calcContactBtn">תיאום שיעור ניסיון ב-WhatsApp</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Quick WhatsApp Message Builder -->
+    <section id="contactSection" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+      <div class="border-b border-slate-100 pb-4">
+        <h2 id="builderTitle" class="text-xl sm:text-2xl font-bold text-slate-900">📲 תיאום שיעור בקלות</h2>
+        <p id="builderSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1">בחרו את פרטי התלמיד/ה והמערכת תכין עבורכם הודעת WhatsApp בלחיצת כפתור.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Select Grade -->
+        <div>
+          <label id="lblGrade" class="block text-xs font-bold text-slate-700 mb-1">כיתה:</label>
+          <select id="selectGrade" onchange="generateWhatsAppLink()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm rounded-xl p-3 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <option value="א׳">כיתה א׳</option>
+            <option value="ב׳">כיתה ב׳</option>
+            <option value="ג׳">כיתה ג׳</option>
+            <option value="ד׳">כיתה ד׳</option>
+            <option value="ה׳">כיתה ה׳</option>
+            <option value="ו׳" selected>כיתה ו׳</option>
+          </select>
+        </div>
+
+        <!-- Select Subject -->
+        <div>
+          <label id="lblSubject" class="block text-xs font-bold text-slate-700 mb-1">מקצוע מבוקש:</label>
+          <select id="selectSubject" onchange="generateWhatsAppLink()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs sm:text-sm rounded-xl p-3 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <option value="מתמטיקה" selected>מתמטיקה</option>
+            <option value="אנגלית">אנגלית</option>
+            <option value="עברית והבנת הנקרא">עברית והבנת הנקרא</option>
+            <option value="מדעים">מדעים</option>
+            <option value="שילוב מקצועות">שילוב כמה מקצועות</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Preview of WhatsApp message -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 space-y-2">
+        <div class="font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+          <span id="previewLabel">תצוגה מקדימה של ההודעה:</span>
+        </div>
+        <p id="msgPreview" class="bg-white p-3 rounded-lg border border-slate-200 text-slate-700 leading-relaxed font-normal">
+          "היי עמית, אשמח לקבל פרטים לגבי שיעור פרטי במתמטיקה עבור תלמיד/ה בשכבת ו׳."
+        </p>
+      </div>
+
+      <!-- Send Action & Direct Call Text -->
+      <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
+        <a 
+          id="dynamicWaBtn" 
+          href="#" 
+          target="_blank" 
+          class="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-600/25 transition-all duration-200 text-sm"
+        >
+          <i class="fa-brands fa-whatsapp text-lg"></i>
+          <span id="sendWaText">שליחת ההודעה ל-054-344-0083</span>
+        </a>
+
+        <div class="w-full sm:w-auto text-slate-700 font-bold text-sm sm:text-base whitespace-nowrap text-center sm:text-right py-2">
+          <i class="fa-solid fa-phone text-slate-500 ml-1.5 ltr:ml-0 ltr:mr-1.5"></i>
+          <span id="directCallText">ניתן להתקשר בטלפון: 054-344-0083</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-4">
+      <h2 id="faqTitle" class="text-xl sm:text-2xl font-bold text-slate-900 border-b border-slate-100 pb-3">❓ שאלות נפוצות של הורים</h2>
+      
+      <div class="space-y-3 text-xs sm:text-sm">
+        <details class="group bg-slate-50 p-4 rounded-xl border border-slate-200/80 [&_summary::-webkit-details-marker]:none">
+          <summary class="flex items-center justify-between font-bold text-slate-900 cursor-pointer">
+            <span id="faqQ1">איפה מתקיימים השיעורים?</span>
+            <span class="transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-slate-400"></i>
+            </span>
+          </summary>
+          <p id="faqA1" class="mt-2 text-slate-600 leading-relaxed">
+            השיעורים מתקיימים בבית התלמיד/ה במודיעין.
+          </p>
+        </details>
+
+        <details class="group bg-slate-50 p-4 rounded-xl border border-slate-200/80 [&_summary::-webkit-details-marker]:none">
+          <summary class="flex items-center justify-between font-bold text-slate-900 cursor-pointer">
+            <span id="faqQ2">לאיזה גילאים השיעורים מתאימים?</span>
+            <span class="transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-slate-400"></i>
+            </span>
+          </summary>
+          <p id="faqA2" class="mt-2 text-slate-600 leading-relaxed">
+            השיעורים מיועדים לתלמידים ותלמידות בכיתות א׳ עד ו׳ במגוון מקצועות היסוד.
+          </p>
+        </details>
+
+        <details class="group bg-slate-50 p-4 rounded-xl border border-slate-200/80 [&_summary::-webkit-details-marker]:none">
+          <summary class="flex items-center justify-between font-bold text-slate-900 cursor-pointer">
+            <span id="faqQ3">איך עובדת רמת האנגלית?</span>
+            <span class="transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-slate-400"></i>
+            </span>
+          </summary>
+          <p id="faqA3" class="mt-2 text-slate-600 leading-relaxed">
+            גרתי במשך 3 שנים בקליפורניה, ולכן האנגלית שלי היא ברמה גבוהה ושוטפת. השיעור כולל חיזוק הדיבור, קריאה, הבנת הנקרא ודקדוק.
+          </p>
+        </details>
+
+        <details class="group bg-slate-50 p-4 rounded-xl border border-slate-200/80 [&_summary::-webkit-details-marker]:none">
+          <summary class="flex items-center justify-between font-bold text-slate-900 cursor-pointer">
+            <span id="faqQ4">מה הניסיון שלך עם ילדים?</span>
+            <span class="transition group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down text-slate-400"></i>
+            </span>
+          </summary>
+          <p id="faqA4" class="mt-2 text-slate-600 leading-relaxed">
+            בעל ניסיון מעשי בהדרכה, חניכה והשגחה על ילדים בגילאי היסוד. מקפיד על גישה סבלנית, קשובה, בוגרת ומכבדת.
+          </p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-4xl mx-auto px-4 py-8 text-center border-t border-slate-200 mt-12">
+    <p class="text-xs text-slate-500 font-medium">
+      © <span id="footerText">עמית סגל - שיעורים פרטיים במודיעין | טלפון: 054-344-0083</span>
+    </p>
+  </footer>
+
+  <!-- Translation & Logic Script -->
+  <script>
+    let currentLang = 'he';
+
+    const translations = {
+      he: {
+        dir: 'rtl',
+        langBtnText: 'English',
+        availabilityBadge: 'מקבל תלמידים חדשים במודיעין והסביבה',
+        heroBadge1: 'כיתה ט׳ | כיתת עמ״ט',
+        heroBadge2: 'מודיעין',
+        heroTitle: 'עמית סגל – שיעורים פרטיים',
+        heroSubtitle: 'חיזוק, סיוע בשיעורי בית והקניית הרגלי למידה במתמטיקה, אנגלית, עברית ומדעים לתלמידי כיתות א׳-ו׳. יחס אישי, סבלני ומעצים!',
+        heroWaBtn: 'הודעת WhatsApp מהירה',
+        heroCallBtn: 'טלפון: 054-344-0083',
+        
+        adv1Title: 'כיתת עמ״ט (STEM)',
+        adv1Desc: 'לומד בתוכנית מועשרת במתמטיקה, מדעים ומדעי המחשב. חשיבה אנליטית ושיטות לימוד ברורות.',
+        adv2Title: 'אנגלית ברמה גבוהה',
+        adv2Desc: '3 שנים של מגורים בקליפורניה. שליטה מעולה ואנגלית שוטפת בדיבור, קריאה וכתיבה.',
+        adv3Title: 'גישה מעולה לילדים',
+        adv3Desc: 'ניסיון מעשי בהדרכה, חניכה והשגחה על ילדים בגילאי היסוד. גישה סבלנית, קשובה ואווירת למידה חיובית.',
+        adv4Title: 'בוגר ואחראי',
+        adv4Desc: 'זמין, מנומס ומחויב להתקדמות של התלמיד/ה לכל אורך הדרך.',
+
+        subjTitle: '📚 מקצועות הלימוד (כיתות א׳-ו׳)',
+        subjSubtitle: 'תוכנית מותאמת לפי הקצב והצרכים של התלמיד/ה',
+        locationNote: 'שיעורים בבית התלמיד/ה במודיעין',
+
+        sMathTitle: 'מתמטיקה',
+        sMathDesc: 'חיזוק יסודות החשבון, שברים, אחוזים, בעיות מילוליות והכנה למבחנים בשיטה פשוטה ומובנת.',
+        sEngTitle: 'אנגלית',
+        sEngDesc: 'שיפור הדיבור והביטחון העצמי, אוצר מילים, דקדוק, קריאה וכתיבה ברמה גבוהה ושוטפת.',
+        sHebTitle: 'עברית / הבנת הנקרא',
+        sHebDesc: 'הבנת הנקרא, ניתוח טקסטים, כתיבה תמציתית, עבודה על שגיאות כתיב והעשרת השפה.',
+        sSciTitle: 'מדעים וטכנולוגיה',
+        sSciDesc: 'הסבר מושגים מדעיים בצורה חווייתית ומעניינת, עזרה בעבודות חקר והכנה למבחנים.',
+
+        pricingTag: 'מחיר הוגן ושקוף',
+        pricingTitle: 'מחירון שיעורים',
+        pricingSubtitle: 'איכות גבוהה במחיר נוח לכל משפחה במודיעין',
+        rateLabel1: 'שיעור בודד (45 דקות)',
+        rateSub1: 'טווח לשיעור: ₪60 - ₪70 (בהתאם למיקום/משך)',
+        pCheck1: 'שיעור פרטי 1-על-1 בבית התלמיד/ה',
+        pCheck2: 'סיכום קצר להורים בסיום כל שיעור',
+        pCheck3: 'מענה לשאלות קצרות ב-WhatsApp במידת הצורך',
+
+        calcTitle: 'מחשבון מסלול מומלץ',
+        discountBadge: 'חיסכון מתוכנן',
+        sliderLabel: 'בחר/י מספר שיעורים שבועיים:',
+        calcContactBtn: 'תיאום שיעור ניסיון ב-WhatsApp',
+
+        builderTitle: '📲 תיאום שיעור בקלות',
+        builderSubtitle: 'בחרו את פרטי התלמיד/ה והמערכת תכין עבורכם הודעת WhatsApp בלחיצת כפתור.',
+        lblGrade: 'כיתה:',
+        lblSubject: 'מקצוע מבוקש:',
+        previewLabel: 'תצוגה מקדימה של ההודעה:',
+        sendWaText: 'שליחת ההודעה ל-054-344-0083',
+        directCallText: 'ניתן להתקשר בטלפון: 054-344-0083',
+
+        faqTitle: '❓ שאלות נפוצות של הורים',
+        faqQ1: 'איפה מתקיימים השיעורים?',
+        faqA1: 'השיעורים מתקיימים בבית התלמיד/ה במודיעין.',
+        faqQ2: 'לאיזה גילאים השיעורים מתאימים?',
+        faqA2: 'השיעורים מיועדים לתלמידים ותלמידות בכיתות א׳ עד ו׳ במגוון מקצועות היסוד.',
+        faqQ3: 'איך עובדת רמת האנגלית?',
+        faqA3: 'גרתי במשך 3 שנים בקליפורניה, ולכן האנגלית שלי היא ברמה גבוהה ושוטפת. השיעור כולל חיזוק הדיבור, קריאה, הבנת הנקרא ודקדוק.',
+        faqQ4: 'מה הניסיון שלך עם ילדים?',
+        faqA4: 'בעל ניסיון מעשי בהדרכה, חניכה והשגחה על ילדים בגילאי היסוד. מקפיד על גישה סבלנית, קשובה, בוגרת ומכבדת.',
+
+        footerText: 'עמית סגל - שיעורים פרטיים במודיעין | טלפון: 054-344-0083'
+      },
+      en: {
+        dir: 'ltr',
+        langBtnText: 'עברית',
+        availabilityBadge: 'Accepting new students in Modiin area',
+        heroBadge1: '9th Grade | STEM Track (AMAT)',
+        heroBadge2: 'Modiin',
+        heroTitle: 'Amit Segal – Private Tutoring',
+        heroSubtitle: 'Personalized tutoring in Math, English, Hebrew, and Science for Grades 1–6. Patient, encouraging, and structured approach!',
+        heroWaBtn: 'Quick WhatsApp Message',
+        heroCallBtn: 'Phone: 054-344-0083',
+
+        adv1Title: 'Advanced STEM Track',
+        adv1Desc: 'Enrolled in an enriched program for Math, Science & Computer Science. Analytical thinking and clear explanations.',
+        adv2Title: 'High English Proficiency',
+        adv2Desc: 'Lived 3 years in California. Excellent fluency in speaking, reading, and writing.',
+        adv3Title: 'Great with Kids',
+        adv3Desc: 'Practical experience in tutoring, child care, and mentoring elementary school children. Patient and attentive approach.',
+        adv4Title: 'Responsible & Reliable',
+        adv4Desc: 'Punctual, polite, and fully committed to your child’s academic progress.',
+
+        subjTitle: '📚 Subjects Covered (Grades 1–6)',
+        subjSubtitle: 'Customized learning pace according to each student’s needs',
+        locationNote: 'In-home tutoring in Modiin',
+
+        sMathTitle: 'Mathematics',
+        sMathDesc: 'Building strong foundations in arithmetic, fractions, word problems, and test preparation.',
+        sEngTitle: 'English',
+        sEngDesc: 'Boosting confidence, vocabulary, grammar, reading comprehension, and conversational skills.',
+        sHebTitle: 'Hebrew & Reading',
+        sHebDesc: 'Reading comprehension, writing skills, grammar, text analysis, and vocabulary enrichment.',
+        sSciTitle: 'Science & Tech',
+        sSciDesc: 'Explaining scientific concepts in an engaging way, helping with research projects and tests.',
+
+        pricingTag: 'Fair & Transparent Pricing',
+        pricingTitle: 'Tutoring Rates',
+        pricingSubtitle: 'High quality tutoring at an accessible rate for Modiin families',
+        rateLabel1: 'Single Lesson (45 mins)',
+        rateSub1: 'Range: ₪60 – ₪70 (depending on location & length)',
+        pCheck1: '1-on-1 private lesson at student’s home',
+        pCheck2: 'Brief update for parents after each session',
+        pCheck3: 'Available for quick homework questions via WhatsApp',
+
+        calcTitle: 'Recommended Weekly Track',
+        discountBadge: 'Smart Value',
+        sliderLabel: 'Select lessons per week:',
+        calcContactBtn: 'Schedule Trial Lesson on WhatsApp',
+
+        builderTitle: '📲 Easy Lesson Booking',
+        builderSubtitle: 'Choose your child’s details to generate a WhatsApp message in 1 click.',
+        lblGrade: 'Grade:',
+        lblSubject: 'Subject Needed:',
+        previewLabel: 'Message Preview:',
+        sendWaText: 'Send WhatsApp to 054-344-0083',
+        directCallText: 'Available by phone: 054-344-0083',
+
+        faqTitle: '❓ Parent FAQ',
+        faqQ1: 'Where do lessons take place?',
+        faqA1: 'Lessons take place exclusively at the student’s home in Modiin.',
+        faqQ2: 'Which age groups do you tutor?',
+        faqA2: 'Elementary school students in Grades 1 through 6.',
+        faqQ3: 'How is your English proficiency?',
+        faqA3: 'I lived in California for 3 years, giving me fluent and high-level proficiency in speaking, grammar, and reading.',
+        faqQ4: 'What is your experience with kids?',
+        faqA4: 'I have practical experience in tutoring, child care, and mentoring elementary school children. I maintain a patient, attentive, mature, and respectful approach.',
+
+        footerText: 'Amit Segal - Private Tutoring in Modiin | Phone: 054-344-0083'
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'he' ? 'en' : 'he';
+      const data = translations[currentLang];
+      
+      document.documentElement.dir = data.dir;
+      document.documentElement.lang = currentLang;
+
+      if (data.dir === 'ltr') {
+        document.body.classList.add('ltr-mode');
+      } else {
+        document.body.classList.remove('ltr-mode');
+      }
+
+      // Update static text elements
+      Object.keys(data).forEach(key => {
+        const el = document.getElementById(key);
+        if (el && key !== 'dir') {
+          el.innerText = data[key];
+        }
+      });
+
+      // Update dropdown options language
+      updateDropdownOptions();
+      // Recalculate calculator and WhatsApp preview
+      updateCalculator();
+      generateWhatsAppLink();
+    }
+
+    function updateDropdownOptions() {
+      const isHe = currentLang === 'he';
+      
+      const gradeSelect = document.getElementById('selectGrade');
+      gradeSelect.innerHTML = isHe ? `
+        <option value="א׳">כיתה א׳</option>
+        <option value="ב׳">כיתה ב׳</option>
+        <option value="ג׳">כיתה ג׳</option>
+        <option value="ד׳">כיתה ד׳</option>
+        <option value="ה׳">כיתה ה׳</option>
+        <option value="ו׳" selected>כיתה ו׳</option>
+      ` : `
+        <option value="Grade 1">Grade 1</option>
+        <option value="Grade 2">Grade 2</option>
+        <option value="Grade 3">Grade 3</option>
+        <option value="Grade 4">Grade 4</option>
+        <option value="Grade 5">Grade 5</option>
+        <option value="Grade 6" selected>Grade 6</option>
+      `;
+
+      const subjectSelect = document.getElementById('selectSubject');
+      subjectSelect.innerHTML = isHe ? `
+        <option value="מתמטיקה" selected>מתמטיקה</option>
+        <option value="אנגלית">אנגלית</option>
+        <option value="עברית והבנת הנקרא">עברית והבנת הנקרא</option>
+        <option value="מדעים">מדעים</option>
+        <option value="שילוב מקצועות">שילוב כמה מקצועות</option>
+      ` : `
+        <option value="Math" selected>Math</option>
+        <option value="English">English</option>
+        <option value="Hebrew">Hebrew</option>
+        <option value="Science">Science</option>
+        <option value="Multiple Subjects">Multiple Subjects</option>
+      `;
+    }
+
+    function updateCalculator() {
+      const lessonsPerWeek = parseInt(document.getElementById('lessonSlider').value);
+      const ratePerLesson = 60; // rate for estimate
+      const monthlyLessons = lessonsPerWeek * 4;
+      const totalCost = monthlyLessons * ratePerLesson;
+
+      const countEl = document.getElementById('calcLessonsCount');
+      const priceEl = document.getElementById('calcTotalPrice');
+
+      if (currentLang === 'he') {
+        countEl.innerText = `${lessonsPerWeek} שיעורים בשבוע (כ-${monthlyLessons} בחודש)`;
+        priceEl.innerText = `₪${totalCost} / חודש`;
+      } else {
+        countEl.innerText = `${lessonsPerWeek} lessons/week (~${monthlyLessons} per month)`;
+        priceEl.innerText = `₪${totalCost} / month`;
+      }
+    }
+
+    function generateWhatsAppLink() {
+      const grade = document.getElementById('selectGrade').value;
+      const subject = document.getElementById('selectSubject').value;
+      const phone = "972543440083";
+
+      let text = "";
+      if (currentLang === 'he') {
+        text = `היי עמית, אשמח לקבל פרטים לגבי שיעור פרטי ב${subject} עבור תלמיד/ה בשכבת ${grade}.`;
+      } else {
+        text = `Hi Amit, I would like details regarding private tutoring in ${subject} for a student in Grade ${grade}.`;
+      }
+
+      document.getElementById('msgPreview').innerText = `"${text}"`;
+
+      const encodedText = encodeURIComponent(text);
+      document.getElementById('dynamicWaBtn').href = `https://wa.me/${phone}?text=${encodedText}`;
+    }
+
+    function scrollToContact() {
+      document.getElementById('contactSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialize state on load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateCalculator();
+      generateWhatsAppLink();
     });
-  }
-</script>
+  </script>
 </body>
 </html>
